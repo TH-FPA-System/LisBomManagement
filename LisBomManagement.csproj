@@ -23,7 +23,6 @@
   <ItemGroup>
     <Folder Include="DTOs\" />
     <Folder Include="lisbom-frontend\src\components\PartPropertyData\" />
-    <Folder Include="lisbom-frontend\src\components\PartTest\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
