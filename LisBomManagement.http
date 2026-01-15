@@ -1,0 +1,6 @@
+@LisBomManagement_HostAddress = http://localhost:5063
+
+GET {{LisBomManagement_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
