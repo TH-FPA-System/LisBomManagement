@@ -1,7 +1,7 @@
-﻿using LISBOMWebAPI.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // ✅ required for FirstOrDefaultAsync, ToListAsync, etc.
 using LISBOMWebAPI.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using LISBOMWebAPI.Data;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -14,55 +14,60 @@ public class PartStructuresController : ControllerBase
         _context = context;
     }
 
+    // GET: api/PartStructures
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PartStructure>>> GetPartStructures()
     {
         return await _context.PartStructures.ToListAsync();
     }
 
-    [HttpGet("{part}/{task}/{taskRef}/{component}/{effStart}/{effClose}")]
-    public async Task<ActionResult<PartStructure>> GetPartStructure(
-        string part, short task, string taskRef, string component, DateTime effStart, DateTime effClose)
-    {
-        var entity = await _context.PartStructures.FindAsync(part, task, taskRef, component, effStart, effClose);
-        if (entity == null) return NotFound();
-        return entity;
-    }
-
+    // POST: api/PartStructures
     [HttpPost]
-    public async Task<ActionResult<PartStructure>> CreatePartStructure(PartStructure entity)
+    public async Task<ActionResult<PartStructure>> PostPartStructure(PartStructure structure)
     {
-        _context.PartStructures.Add(entity);
+        _context.PartStructures.Add(structure);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetPartStructure), new
-        {
-            part = entity.Part,
-            task = entity.Task,
-            taskRef = entity.TaskReference,
-            component = entity.Component,
-            effStart = entity.EffStart,
-            effClose = entity.EffClose
-        }, entity);
+        return CreatedAtAction(nameof(GetPartStructures), new { part = structure.Part, task = structure.Task, component = structure.Component }, structure);
     }
 
-    [HttpPut("{part}/{task}/{taskRef}/{component}/{effStart}/{effClose}")]
-    public async Task<IActionResult> UpdatePartStructure(string part, short task, string taskRef, string component, DateTime effStart, DateTime effClose, PartStructure entity)
+    // PUT: api/PartStructures/{part}/{task}/{component}
+    [HttpPut("{part}/{task}/{component}")]
+    public async Task<IActionResult> UpdatePartStructure(string part, short task, string component, PartStructure entity)
     {
-        if (part != entity.Part || task != entity.Task || taskRef != entity.TaskReference || component != entity.Component || effStart != entity.EffStart || effClose != entity.EffClose)
-            return BadRequest();
+        var existing = await _context.PartStructures
+            .FirstOrDefaultAsync(p => p.Part == part && p.Task == task && p.Component == component);
 
-        _context.Entry(entity).State = EntityState.Modified;
+        if (existing == null) return NotFound();
+
+        // Update all editable fields including EffStart and EffClose
+        existing.TaskReference = entity.TaskReference;
+        existing.Quantity = entity.Quantity;
+        existing.EcnStart = entity.EcnStart;
+        existing.EffStart = entity.EffStart;
+        existing.EcnClose = entity.EcnClose;
+        existing.EffClose = entity.EffClose;
+        existing.EcnStatus = entity.EcnStatus;
+        existing.EngConcession = entity.EngConcession;
+        existing.LastMaint = entity.LastMaint;
+        existing.LastMaintLogon = entity.LastMaintLogon;
+        existing.DateAdded = entity.DateAdded;
+
         await _context.SaveChangesAsync();
         return NoContent();
     }
 
-    [HttpDelete("{part}/{task}/{taskRef}/{component}/{effStart}/{effClose}")]
-    public async Task<IActionResult> DeletePartStructure(string part, short task, string taskRef, string component, DateTime effStart, DateTime effClose)
+    // DELETE: api/PartStructures/{part}/{task}/{component}
+    [HttpDelete("{part}/{task}/{component}")]
+    public async Task<IActionResult> DeletePartStructure(string part, short task, string component)
     {
-        var entity = await _context.PartStructures.FindAsync(part, task, taskRef, component, effStart, effClose);
+        var entity = await _context.PartStructures
+            .FirstOrDefaultAsync(p => p.Part == part && p.Task == task && p.Component == component);
+
         if (entity == null) return NotFound();
+
         _context.PartStructures.Remove(entity);
         await _context.SaveChangesAsync();
+
         return NoContent();
     }
 }

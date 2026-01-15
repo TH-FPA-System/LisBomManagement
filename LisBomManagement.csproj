@@ -24,8 +24,6 @@
     <Folder Include="DTOs\" />
     <Folder Include="lisbom-frontend\src\components\PartPropertyData\" />
     <Folder Include="lisbom-frontend\src\components\PartTest\" />
-    <Folder Include="lisbom-frontend\src\components\PartStructure\" />
-    <Folder Include="lisbom-frontend\src\components\PartIssue\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

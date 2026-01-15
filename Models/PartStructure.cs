@@ -13,11 +13,11 @@ namespace LISBOMWebAPI.Models
         [Key, Column("task", Order = 1)]
         public short Task { get; set; }
 
-        [Key, Column("task_reference", Order = 2)]
-        public string TaskReference { get; set; } = null!;
-
-        [Key, Column("component", Order = 3)]
+        [Key, Column("component", Order = 2)]  // ✅ Only this key now
         public string Component { get; set; } = null!;
+
+        [Column("task_reference")]
+        public string TaskReference { get; set; } = null!;
 
         [Column("quantity")]
         public float Quantity { get; set; }
@@ -26,13 +26,13 @@ namespace LISBOMWebAPI.Models
         public int EcnStart { get; set; }
 
         [Column("eff_start")]
-        public DateTime EffStart { get; set; }
+        public DateTime EffStart { get; set; }   // ✅ now editable
 
         [Column("ecn_close")]
         public int EcnClose { get; set; }
 
         [Column("eff_close")]
-        public DateTime EffClose { get; set; }
+        public DateTime EffClose { get; set; }   // ✅ now editable
 
         [Column("ecn_status")]
         public string EcnStatus { get; set; } = null!;

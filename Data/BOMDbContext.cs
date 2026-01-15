@@ -19,7 +19,7 @@ namespace LISBOMWebAPI.Data
                 .HasKey(p => new { p.Part, p.PartIssueCode });
 
             modelBuilder.Entity<PartStructure>()
-                .HasKey(p => new { p.Part, p.Task, p.TaskReference, p.Component, p.EffStart, p.EffClose });
+                    .HasKey(p => new { p.Part, p.Task, p.Component });
 
             modelBuilder.Entity<PartTest>()
                 .HasKey(p => new { p.Part, p.PartIssue });
@@ -27,6 +27,8 @@ namespace LISBOMWebAPI.Data
             modelBuilder.Entity<PartPropertyData>()
                 .HasKey(p => new { p.Part, p.Property });
         }
+
+
     }
 
 
