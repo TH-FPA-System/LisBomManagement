@@ -28,7 +28,7 @@ const PartList = () => {
             alert("Error fetching parts. Check your API.");
         }
     };
-    //TST
+   
     useEffect(() => {
         fetchParts();
     }, []);
