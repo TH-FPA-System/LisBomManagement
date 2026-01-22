@@ -1,11 +1,15 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import { Button, Stack } from "@mui/material";
+
+// Import all components
 import PartList from "./components/Parts/PartList";
 import PartStructureList from "./components/PartStructure/PartStructureList";
 import PartTestList from "./components/PartTest/PartTestList";
 import PartPropertyDataList from "./components/PartPropertyData/PartPropertyDataList";
+import PartMapList from "./components/PartMap/PartMapList";
 
+// Navigation Button component
 function NavButton({ to, label }) {
     const location = useLocation();
     const isActive = location.pathname === to;
@@ -46,6 +50,7 @@ function App() {
                     <NavButton to="/part-structure" label="Part Structure" />
                     <NavButton to="/part-test" label="Part Test" />
                     <NavButton to="/part-property" label="Part Property" />
+                    <NavButton to="/part-map" label="Part Map" />  {/* ✅ New tab */}
                 </Stack>
 
                 {/* Routes */}
@@ -54,6 +59,7 @@ function App() {
                     <Route path="/part-structure" element={<PartStructureList />} />
                     <Route path="/part-test" element={<PartTestList />} />
                     <Route path="/part-property" element={<PartPropertyDataList />} />
+                    <Route path="/part-map" element={<PartMapList />} />  {/* ✅ New route */}
                     <Route path="*" element={<PartList />} />
                 </Routes>
             </div>
