@@ -1,5 +1,4 @@
 ﻿import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
     Dialog,
     DialogTitle,
@@ -10,8 +9,10 @@ import {
     FormControlLabel,
     Checkbox
 } from "@mui/material";
+import { getPartMaps, createPartMap, updatePartMap, deletePartMap } from "../../api/api";
 
-const PartMapForm = ({ map, onClose }) => {
+
+const PartMapForm = ({ map, onClose, onSaved }) => {
     const isEditMode = Boolean(map);
 
     const [formData, setFormData] = useState({
@@ -49,13 +50,11 @@ const PartMapForm = ({ map, onClose }) => {
     const handleSubmit = async () => {
         try {
             if (isEditMode) {
-                await axios.put(
-                    `https://localhost:7079/api/PartMap/${formData.mapId}`,
-                    formData
-                );
+                await updatePartMap(formData.mapId, formData);
             } else {
-                await axios.post("https://localhost:7079/api/PartMap", formData);
+                await createPartMap(formData);
             }
+            onSaved?.(); // refresh list if parent provides callback
             onClose();
         } catch (err) {
             console.error(err.response?.data || err);

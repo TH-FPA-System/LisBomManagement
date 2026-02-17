@@ -1,11 +1,10 @@
 ﻿import React, { useEffect, useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
-import axios from "axios";
+import { createPartStructure, updatePartStructure } from "../../api/api"; // <-- use helper
 
 const PartStructureForm = ({ structure, onClose, onSaved }) => {
     const isEditMode = Boolean(structure);
 
-    // Form state matching API
     const [formData, setFormData] = useState({
         part: "",
         task: 0,
@@ -39,22 +38,16 @@ const PartStructureForm = ({ structure, onClose, onSaved }) => {
             const payload = { ...formData };
 
             if (isEditMode) {
-                await axios.put(
-                    `https://localhost:7079/api/PartStructures/${payload.part}/${payload.task}/${payload.component}`,
-                    payload
-                );
+                await updatePartStructure(payload.part, payload.task, payload.component, payload);
             } else {
-                await axios.post(
-                    "https://localhost:7079/api/PartStructures",
-                    payload
-                );
+                await createPartStructure(payload);
             }
 
             onSaved();
             onClose();
         } catch (error) {
             console.error(error.response?.data || error);
-            alert("Error saving PartStructure. Check console for details.");
+            alert("Error saving Part Structure. Check console for details.");
         }
     };
 
@@ -88,7 +81,6 @@ const PartStructureForm = ({ structure, onClose, onSaved }) => {
                     fullWidth
                     margin="dense"
                 />
-
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>

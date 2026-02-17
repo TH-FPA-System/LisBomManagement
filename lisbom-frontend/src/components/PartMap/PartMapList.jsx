@@ -9,8 +9,10 @@ import {
     Paper,
     Button,
 } from "@mui/material";
-import axios from "axios";
 import PartMapForm from "./PartMapForm";
+// Example in PartMapList.jsx
+import { getPartMaps, createPartMap, updatePartMap, deletePartMap } from "../../api/api";
+
 
 const PartMapList = () => {
     const [maps, setMaps] = useState([]);
@@ -20,8 +22,8 @@ const PartMapList = () => {
     // Fetch all PartMap records
     const fetchMaps = async () => {
         try {
-            const res = await axios.get("https://localhost:7079/api/PartMap");
-            setMaps(res.data);
+            const data = await getPartMaps();
+            setMaps(data);
         } catch (error) {
             console.error(error);
             alert("Error fetching PartMap data.");
@@ -40,11 +42,10 @@ const PartMapList = () => {
 
     // Delete mapping
     const handleDelete = async (map) => {
-        if (!window.confirm("Are you sure you want to delete this mapping?"))
-            return;
+        if (!window.confirm("Are you sure you want to delete this mapping?")) return;
 
         try {
-            await axios.delete(`https://localhost:7079/api/PartMap/${map.mapId}`);
+            await deletePartMap(map.mapId);
             fetchMaps();
         } catch (error) {
             console.error(error);
@@ -60,7 +61,7 @@ const PartMapList = () => {
 
     return (
         <div>
-            <h2> LISBOM Part Map</h2>
+            <h2>LISBOM Part Map</h2>
             <Button
                 variant="contained"
                 color="primary"
@@ -81,13 +82,13 @@ const PartMapList = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell> MapId </TableCell>
-                            <TableCell> LISBOM Part </TableCell>
-                            <TableCell> Part </TableCell>
-                            <TableCell> Store Location </TableCell>
-                            <TableCell> Active </TableCell>
-                            <TableCell> Effective Date </TableCell>
-                            <TableCell> Actions </TableCell>
+                            <TableCell>MapId</TableCell>
+                            <TableCell>LISBOM Part</TableCell>
+                            <TableCell>Part</TableCell>
+                            <TableCell>Store Location</TableCell>
+                            <TableCell>Active</TableCell>
+                            <TableCell>Effective Date</TableCell>
+                            <TableCell>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

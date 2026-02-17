@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
-import axios from "axios";
+import { createPartPropertyData, updatePartPropertyData } from "../../api/api"; // use centralized API
 
 const PartPropertyDataForm = ({ propertyData, onClose, onSaved }) => {
     const isEditMode = Boolean(propertyData?.part && propertyData?.property);
@@ -19,14 +19,10 @@ const PartPropertyDataForm = ({ propertyData, onClose, onSaved }) => {
     const handleSubmit = async () => {
         try {
             if (isEditMode) {
-                await axios.put(
-                    `https://localhost:7079/api/PartPropertyDatas/${formData.part}/${formData.property}`,
-                    formData
-                );
+                await updatePartPropertyData(formData.part, formData.property, formData);
             } else {
-                await axios.post("https://localhost:7079/api/PartPropertyDatas", formData);
+                await createPartPropertyData(formData);
             }
-
             onSaved();
             onClose();
         } catch (error) {
@@ -68,9 +64,7 @@ const PartPropertyDataForm = ({ propertyData, onClose, onSaved }) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <Button variant="contained" onClick={handleSubmit}>
-                    Save
-                </Button>
+                <Button variant="contained" onClick={handleSubmit}>Save</Button>
             </DialogActions>
         </Dialog>
     );

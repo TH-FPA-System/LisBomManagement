@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { createPart, updatePart, createPartIssue } from "../../api/api";
 import {
     Dialog,
     DialogTitle,
@@ -40,26 +40,17 @@ const PartForm = ({ part, onClose, onSaved }) => {
     const handleSubmit = async () => {
         try {
             if (isEditMode) {
-                // ✅ Update existing Part
-                await axios.put(
-                    `https://localhost:7079/api/Parts/${formData.partCode}`,
-                    formData
-                );
-                onClose();
+                await updatePart(formData.partCode, formData);
             } else {
-                // ✅ Create new Part
-                const res = await axios.post(
-                    "https://localhost:7079/api/Parts",
-                    {
-                        ...formData,
-                        dateAdded: new Date().toISOString()
-                    }
-                );
+                await createPart({
+                    ...formData,
+                    dateAdded: new Date().toISOString()
+                });
 
-                const partCode = formData.partCode; // or res.data.partCode if backend modifies it
+                const partCode = formData.partCode;
 
-                // ✅ Auto-create default PartIssue
-                await axios.post("https://localhost:7079/api/PartIssues", {
+                // Auto-create default PartIssue
+                await createPartIssue({
                     part: partCode,
                     partIssueCode: "A",
                     drawing: "A",
@@ -73,11 +64,12 @@ const PartForm = ({ part, onClose, onSaved }) => {
                     lastMaintLogon: "SYSTEM"
                 });
 
-                // ✅ Notify parent to refresh list & close dialog
                 onSaved(partCode);
             }
+
+            onClose();
         } catch (error) {
-            console.error("Submit error:", error.response?.data || error);
+            console.error(error);
             alert("Error saving part or part issue.");
         }
     };
@@ -85,7 +77,6 @@ const PartForm = ({ part, onClose, onSaved }) => {
     return (
         <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle>{isEditMode ? "Edit Part" : "Add Part"}</DialogTitle>
-
             <DialogContent>
                 <TextField
                     margin="dense"
@@ -94,7 +85,7 @@ const PartForm = ({ part, onClose, onSaved }) => {
                     value={formData.partCode}
                     onChange={handleChange}
                     fullWidth
-                    disabled={isEditMode}   // ✅ lock PK on edit
+                    disabled={isEditMode}
                 />
                 <TextField
                     margin="dense"
@@ -129,12 +120,9 @@ const PartForm = ({ part, onClose, onSaved }) => {
                     fullWidth
                 />
             </DialogContent>
-
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <Button variant="contained" onClick={handleSubmit}>
-                    Save
-                </Button>
+                <Button variant="contained" onClick={handleSubmit}>Save</Button>
             </DialogActions>
         </Dialog>
     );
