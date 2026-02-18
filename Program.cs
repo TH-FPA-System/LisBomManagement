@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,6 @@ builder.Services.AddEndpointsApiExplorer();
 // ===== Swagger with JWT support =====
 builder.Services.AddSwaggerGen(c =>
 {
-    // Add JWT Bearer definition
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -25,7 +25,6 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Enter 'Bearer {token}'"
     });
 
-    // Require JWT for all endpoints (optional)
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -55,7 +54,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// ===== JWT Authentication =====
+// ===== JWT Authentication (FIXED) =====
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -65,13 +64,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
+
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
+
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("JWT Key is missing!"))
-            )
+                Encoding.UTF8.GetBytes(
+                    builder.Configuration["Jwt:Key"]
+                    ?? throw new Exception("JWT Key is missing!")
+                )
+            ),
+
+            // 🔥 THIS IS THE IMPORTANT PART
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role
         };
     });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -88,7 +98,7 @@ app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 
-app.UseAuthentication(); // <== MUST be before UseAuthorization
+app.UseAuthentication(); // MUST be before authorization
 app.UseAuthorization();
 
 app.MapControllers();

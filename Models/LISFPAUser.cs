@@ -11,7 +11,9 @@ namespace LisBomManagement.Models
         public string Role { get; set; }
         public bool IsActive { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        // ✅ Add timestamp fields
+        public DateTime? CreatedAt { get; set; }      // when user is registered
+        public DateTime? UpdatedAt { get; set; }      // last update
+        public DateTime? LastLoginAt { get; set; }    // last login
     }
 }

@@ -2,15 +2,24 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from "react-router-dom";
 import { Button, Stack } from "@mui/material";
 
-// Import all components
+// Import pages/components
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import AdminPanel from "./pages/AdminPanel";
+
 import PartList from "./components/Parts/PartList";
 import PartStructureList from "./components/PartStructure/PartStructureList";
 import PartTestList from "./components/PartTest/PartTestList";
 import PartPropertyDataList from "./components/PartPropertyData/PartPropertyDataList";
 import PartMapList from "./components/PartMap/PartMapList";
-import Login from "./components/Login";
 
-// Navigation Button component
+
+// ------------------ Auth helpers ------------------
+const getToken = () => localStorage.getItem("token");
+const getUserRole = () => localStorage.getItem("role");
+const isAdmin = () => getUserRole() === "Admin";
+
+// ------------------ Nav Button ------------------
 function NavButton({ to, label }) {
     const location = useLocation();
     const isActive = location.pathname === to;
@@ -41,18 +50,24 @@ function NavButton({ to, label }) {
     );
 }
 
-// Protected Route wrapper
-function ProtectedRoute({ children }) {
-    const token = localStorage.getItem("token");
-    return token ? children : <Navigate to="/login" replace />;
+// ------------------ Protected Route ------------------
+function ProtectedRoute({ children, adminOnly = false }) {
+    const token = getToken();
+    const role = getUserRole();
+
+    if (!token) return <Navigate to="/login" replace />;
+    if (adminOnly && role !== "Admin") return <Navigate to="/parts" replace />;
+
+    return children;
 }
 
+// ------------------ App Component ------------------
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+    const [isLoggedIn, setIsLoggedIn] = useState(!!getToken());
 
     // Listen for changes to localStorage from other tabs/windows
     useEffect(() => {
-        const handleStorageChange = () => setIsLoggedIn(!!localStorage.getItem("token"));
+        const handleStorageChange = () => setIsLoggedIn(!!getToken());
         window.addEventListener("storage", handleStorageChange);
         return () => window.removeEventListener("storage", handleStorageChange);
     }, []);
@@ -60,7 +75,10 @@ function App() {
     // Logout function
     const handleLogout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("username");
         setIsLoggedIn(false);
+        window.location.href = "/login";
     };
 
     return (
@@ -69,72 +87,39 @@ function App() {
                 {isLoggedIn && (
                     <>
                         {/* Navigation */}
-                        <Stack direction="row" spacing={2} sx={{ marginBottom: 3 }}>
-                            <NavButton to="/parts" label="Parts" />
-                            <NavButton to="/part-structure" label="Part Structure" />
-                            <NavButton to="/part-test" label="Part Test" />
-                            <NavButton to="/part-property" label="Part Property" />
-                            <NavButton to="/part-map" label="Part Map" />
-                        </Stack>
+                        <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ mb: 3 }}>
+                            <Stack direction="row" spacing={2}>
+                                <NavButton to="/parts" label="Parts" />
+                                <NavButton to="/part-structure" label="Part Structure" />
+                                <NavButton to="/part-test" label="Part Test" />
+                                <NavButton to="/part-property" label="Part Property" />
+                                <NavButton to="/part-map" label="Part Map" />                             
+                                {isAdmin() && <NavButton to="/admin" label="Admin Panel" />}
+                            </Stack>
 
-                        {/* Logout button */}
-                        <Button
-                            variant="outlined"
-                            onClick={handleLogout}
-                            sx={{ mb: 3 }}
-                        >
-                            Logout
-                        </Button>
+                            {/* Logout button */}
+                            <Button variant="outlined" onClick={handleLogout}>
+                                Logout
+                            </Button>
+                        </Stack>
                     </>
                 )}
 
                 {/* Routes */}
                 <Routes>
+                    {/* Public */}
                     <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
+                    <Route path="/register" element={<Register />} />
 
-                    {/* Protected routes */}
-                    <Route
-                        path="/parts"
-                        element={
-                            <ProtectedRoute>
-                                <PartList />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/part-structure"
-                        element={
-                            <ProtectedRoute>
-                                <PartStructureList />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/part-test"
-                        element={
-                            <ProtectedRoute>
-                                <PartTestList />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/part-property"
-                        element={
-                            <ProtectedRoute>
-                                <PartPropertyDataList />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/part-map"
-                        element={
-                            <ProtectedRoute>
-                                <PartMapList />
-                            </ProtectedRoute>
-                        }
-                    />
+                    {/* Protected */}
+                    <Route path="/parts" element={<ProtectedRoute><PartList /></ProtectedRoute>} />
+                    <Route path="/part-structure" element={<ProtectedRoute><PartStructureList /></ProtectedRoute>} />
+                    <Route path="/part-test" element={<ProtectedRoute><PartTestList /></ProtectedRoute>} />
+                    <Route path="/part-property" element={<ProtectedRoute><PartPropertyDataList /></ProtectedRoute>} />
+                    <Route path="/part-map" element={<ProtectedRoute><PartMapList /></ProtectedRoute>} />
+                    <Route path="/admin" element={<ProtectedRoute adminOnly={true}><AdminPanel /></ProtectedRoute>} />
 
-                    {/* Redirect unknown paths */}
+                    {/* Fallback */}
                     <Route
                         path="*"
                         element={isLoggedIn ? <Navigate to="/parts" /> : <Navigate to="/login" />}
