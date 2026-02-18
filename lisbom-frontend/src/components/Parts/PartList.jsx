@@ -13,6 +13,7 @@ import {
     Box,
 } from "@mui/material";
 import PartForm from "./PartForm";
+import { isAdmin } from "../../auth"; // ✅ import role helper
 
 const PartList = () => {
     const [parts, setParts] = useState([]);
@@ -63,9 +64,18 @@ const PartList = () => {
     return (
         <Box sx={{ p: 2 }}>
             <h2>Parts</h2>
-            <Button variant="contained" color="primary" onClick={() => setShowForm(true)}>
-                Add Part
-            </Button>
+
+            {/* Only admin can add part */}
+            {isAdmin() && (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setShowForm(true)}
+                    sx={{ mb: 2 }}
+                >
+                    Add Part
+                </Button>
+            )}
 
             {showForm && (
                 <PartForm
@@ -102,22 +112,29 @@ const PartList = () => {
                                         <TableCell>{p.unitMeasure}</TableCell>
                                         <TableCell>{p.primaryRole}</TableCell>
                                         <TableCell>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                sx={{ mr: 1 }}
-                                                onClick={() => handleEdit(p)}
-                                            >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                color="error"
-                                                onClick={() => handleDelete(p)}
-                                            >
-                                                Delete
-                                            </Button>
+                                            {/* Only admin can edit/delete */}
+                                            {isAdmin() ? (
+                                                <>
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{ mr: 1 }}
+                                                        onClick={() => handleEdit(p)}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        color="error"
+                                                        onClick={() => handleDelete(p)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <span style={{ color: "#888" }}>No actions</span>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))

@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { getPartTests, deletePartTest } from "../../api/api";
 import PartTestForm from "./PartTestForm";
+import { isAdmin } from "../../auth"; // ✅ import role helper
 
 const PartTestList = () => {
     const [tests, setTests] = useState([]);
@@ -64,17 +65,21 @@ const PartTestList = () => {
     return (
         <Box sx={{ p: 2 }}>
             <h2>Part Tests</h2>
-            <Button
-                variant="contained"
-                color="primary"
-                sx={{ mb: 2 }}
-                onClick={() => {
-                    setSelectedTest(null);
-                    setShowForm(true);
-                }}
-            >
-                Add Part Test
-            </Button>
+
+            {/* Only admin can Add Part Test */}
+            {isAdmin() && (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ mb: 2 }}
+                    onClick={() => {
+                        setSelectedTest(null);
+                        setShowForm(true);
+                    }}
+                >
+                    Add Part Test
+                </Button>
+            )}
 
             {showForm && (
                 <PartTestForm
@@ -115,22 +120,28 @@ const PartTestList = () => {
                                         <TableCell>{t.lowerLimitValue}</TableCell>
                                         <TableCell>{t.upperLimitValue}</TableCell>
                                         <TableCell>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                sx={{ mr: 1 }}
-                                                onClick={() => handleEdit(t)}
-                                            >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                color="error"
-                                                onClick={() => handleDelete(t)}
-                                            >
-                                                Delete
-                                            </Button>
+                                            {isAdmin() ? (
+                                                <>
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{ mr: 1 }}
+                                                        onClick={() => handleEdit(t)}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        color="error"
+                                                        onClick={() => handleDelete(t)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <span style={{ color: "#888" }}>No actions</span>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))

@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - LISBOM</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label>Username: </label>
+        <input type="text" id="username" required /><br /><br />
+        <label>Password: </label>
+        <input type="password" id="password" required /><br /><br />
+        <button type="submit">Login</button>
+    </form>
+
+    <h3 id="message"></h3>
+    <button id="secureTestBtn" style="display:none;">Call Secure API</button>
+    <pre id="result"></pre>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+        const messageEl = document.getElementById("message");
+        const secureBtn = document.getElementById("secureTestBtn");
+        const resultEl = document.getElementById("result");
+
+        let token = null;
+
+        // ---- Login form submit ----
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            messageEl.textContent = "Logging in...";
+            resultEl.textContent = "";
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const res = await fetch("https://localhost:7079/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!res.ok) throw new Error("Login failed");
+
+                const data = await res.json();
+                token = data.token;
+                messageEl.textContent = `Hello ${data.username}, login successful! Role: ${data.role}`;
+
+                // Show secure API button
+                secureBtn.style.display = "inline-block";
+            } catch (err) {
+                messageEl.textContent = err.message;
+                console.error(err);
+            }
+        });
+
+        // ---- Call secure API ----
+        secureBtn.addEventListener("click", async () => {
+            if (!token) return;
+
+            try {
+                const res = await fetch("https://localhost:7079/api/auth/secure-test", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error("Unauthorized or error");
+
+                const text = await res.text();
+                resultEl.textContent = text;
+            } catch (err) {
+                resultEl.textContent = err.message;
+            }
+        });
+    </script>
+</body>
+</html>

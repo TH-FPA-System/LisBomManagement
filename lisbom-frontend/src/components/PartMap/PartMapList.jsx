@@ -10,9 +10,8 @@ import {
     Button,
 } from "@mui/material";
 import PartMapForm from "./PartMapForm";
-// Example in PartMapList.jsx
-import { getPartMaps, createPartMap, updatePartMap, deletePartMap } from "../../api/api";
-
+import { getPartMaps, deletePartMap } from "../../api/api";
+import { isAdmin } from "../../auth"; // ✅ import role helper
 
 const PartMapList = () => {
     const [maps, setMaps] = useState([]);
@@ -23,7 +22,7 @@ const PartMapList = () => {
     const fetchMaps = async () => {
         try {
             const data = await getPartMaps();
-            setMaps(data);
+            setMaps(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error(error);
             alert("Error fetching PartMap data.");
@@ -62,13 +61,18 @@ const PartMapList = () => {
     return (
         <div>
             <h2>LISBOM Part Map</h2>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setShowForm(true)}
-            >
-                Add Mapping
-            </Button>
+
+            {/* Only admin can Add Mapping */}
+            {isAdmin() && (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ mb: 2 }}
+                    onClick={() => setShowForm(true)}
+                >
+                    Add Mapping
+                </Button>
+            )}
 
             {showForm && (
                 <PartMapForm
@@ -92,38 +96,52 @@ const PartMapList = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {maps.map((m) => (
-                            <TableRow key={m.mapId}>
-                                <TableCell>{m.mapId}</TableCell>
-                                <TableCell>{m.lisBOMPart}</TableCell>
-                                <TableCell>{m.part}</TableCell>
-                                <TableCell>{m.storeLocation}</TableCell>
-                                <TableCell>{m.isActive ? "Yes" : "No"}</TableCell>
-                                <TableCell>
-                                    {m.effectiveDate
-                                        ? new Date(m.effectiveDate).toLocaleDateString()
-                                        : ""}
-                                </TableCell>
-                                <TableCell>
-                                    <Button
-                                        size="small"
-                                        variant="outlined"
-                                        sx={{ mr: 1 }}
-                                        onClick={() => handleEdit(m)}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        size="small"
-                                        variant="outlined"
-                                        color="error"
-                                        onClick={() => handleDelete(m)}
-                                    >
-                                        Delete
-                                    </Button>
+                        {maps.length > 0 ? (
+                            maps.map((m) => (
+                                <TableRow key={m.mapId}>
+                                    <TableCell>{m.mapId}</TableCell>
+                                    <TableCell>{m.lisBOMPart}</TableCell>
+                                    <TableCell>{m.part}</TableCell>
+                                    <TableCell>{m.storeLocation}</TableCell>
+                                    <TableCell>{m.isActive ? "Yes" : "No"}</TableCell>
+                                    <TableCell>
+                                        {m.effectiveDate
+                                            ? new Date(m.effectiveDate).toLocaleDateString()
+                                            : ""}
+                                    </TableCell>
+                                    <TableCell>
+                                        {isAdmin() ? (
+                                            <>
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    sx={{ mr: 1 }}
+                                                    onClick={() => handleEdit(m)}
+                                                >
+                                                    Edit
+                                                </Button>
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    color="error"
+                                                    onClick={() => handleDelete(m)}
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <span style={{ color: "#888" }}>No actions</span>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={7} align="center">
+                                    No mappings found
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>

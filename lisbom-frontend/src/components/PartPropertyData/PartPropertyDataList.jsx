@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import PartPropertyDataForm from "./PartPropertyDataForm";
 import { getPartPropertyDatas, deletePartPropertyData } from "../../api/api";
+import { isAdmin } from "../../auth"; // ✅ import role helper
 
 const PartPropertyDataList = () => {
     const [properties, setProperties] = useState([]);
@@ -64,17 +65,21 @@ const PartPropertyDataList = () => {
     return (
         <Box sx={{ p: 2 }}>
             <h2>Part Property Data</h2>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                    setSelectedProperty(null);
-                    setShowForm(true);
-                }}
-                sx={{ mb: 2 }}
-            >
-                Add Property
-            </Button>
+
+            {/* Only admin can Add Property */}
+            {isAdmin() && (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                        setSelectedProperty(null);
+                        setShowForm(true);
+                    }}
+                    sx={{ mb: 2 }}
+                >
+                    Add Property
+                </Button>
+            )}
 
             {showForm && (
                 <PartPropertyDataForm
@@ -107,22 +112,28 @@ const PartPropertyDataList = () => {
                                         <TableCell>{p.property}</TableCell>
                                         <TableCell>{p.propertyValue}</TableCell>
                                         <TableCell>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                sx={{ mr: 1 }}
-                                                onClick={() => handleEdit(p)}
-                                            >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                color="error"
-                                                onClick={() => handleDelete(p)}
-                                            >
-                                                Delete
-                                            </Button>
+                                            {isAdmin() ? (
+                                                <>
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{ mr: 1 }}
+                                                        onClick={() => handleEdit(p)}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        color="error"
+                                                        onClick={() => handleDelete(p)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <span style={{ color: "#888" }}>No actions</span>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))

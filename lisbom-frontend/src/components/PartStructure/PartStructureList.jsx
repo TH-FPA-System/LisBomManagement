@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import PartStructureForm from "./PartStructureForm";
 import { getPartStructures, deletePartStructure } from "../../api/api";
+import { isAdmin } from "../../auth"; // ✅ import role helper
 
 const PartStructureList = () => {
     const [structures, setStructures] = useState([]);
@@ -64,18 +65,23 @@ const PartStructureList = () => {
     return (
         <Box sx={{ p: 2 }}>
             <h2>Part Structure</h2>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                    setSelectedStructure(null);
-                    setShowForm(true);
-                }}
-            >
-                Add Structure
-            </Button>
 
-            {showForm && (
+            {/* Only admin can add */}
+            {isAdmin() && (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ mb: 2 }}
+                    onClick={() => {
+                        setSelectedStructure(null);
+                        setShowForm(true);
+                    }}
+                >
+                    Add Structure
+                </Button>
+            )}
+
+            {showForm && isAdmin() && (
                 <PartStructureForm
                     structure={selectedStructure}
                     onClose={handleFormClose}
@@ -113,7 +119,7 @@ const PartStructureList = () => {
                                         <TableCell>{s.taskReference}</TableCell>
                                         <TableCell>{s.component}</TableCell>
                                         <TableCell>{s.quantity}</TableCell>
-                                        <TableCell>{s.ecnStart || ""}</TableCell>
+                                        <TableCell>{s.ecnStart}</TableCell>
                                         <TableCell>{s.ecnStatus || ""}</TableCell>
                                         <TableCell>
                                             {s.effStart ? new Date(s.effStart).toLocaleString() : ""}
@@ -122,22 +128,28 @@ const PartStructureList = () => {
                                             {s.effClose ? new Date(s.effClose).toLocaleString() : ""}
                                         </TableCell>
                                         <TableCell>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                sx={{ mr: 1 }}
-                                                onClick={() => handleEdit(s)}
-                                            >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                color="error"
-                                                onClick={() => handleDelete(s)}
-                                            >
-                                                Delete
-                                            </Button>
+                                            {isAdmin() ? (
+                                                <>
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{ mr: 1 }}
+                                                        onClick={() => handleEdit(s)}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        color="error"
+                                                        onClick={() => handleDelete(s)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <span style={{ color: "#888" }}>No actions</span>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))

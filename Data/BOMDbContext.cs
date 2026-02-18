@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LisBomManagement.Models;
 using LISBOMWebAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LISBOMWebAPI.Data
 {
@@ -13,8 +14,10 @@ namespace LISBOMWebAPI.Data
         public DbSet<PartStructure> PartStructures { get; set; }
         public DbSet<PartTest> PartTests { get; set; }
         public DbSet<PartPropertyData> PartPropertyDatas { get; set; }
-
         public DbSet<PartMap> PartMaps { get; set; } = null!;
+
+        // ✅ NEW: User table
+        public DbSet<LISFPAUser> LISFPAUsers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,8 +35,34 @@ namespace LISBOMWebAPI.Data
                 .HasKey(p => new { p.Part, p.Property });
 
             // Primary key for PartMap
-            modelBuilder.Entity<PartMap>().HasKey(p => p.MapId);
+            modelBuilder.Entity<PartMap>()
+                .HasKey(p => p.MapId);
 
+            // ✅ NEW: LISFPAUser mapping
+            modelBuilder.Entity<LISFPAUser>(entity =>
+            {
+                entity.ToTable("LISFPAUser");
+
+                entity.HasKey(e => e.UserId);
+
+                entity.Property(e => e.Username)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(e => e.PasswordHash)
+                      .IsRequired()
+                      .HasMaxLength(255);
+
+                entity.Property(e => e.Role)
+                      .HasMaxLength(50)
+                      .HasDefaultValue("User");
+
+                entity.Property(e => e.IsActive)
+                      .HasDefaultValue(true);
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("SYSDATETIME()");
+            });
 
             base.OnModelCreating(modelBuilder);
         }
