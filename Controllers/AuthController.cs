@@ -128,5 +128,62 @@ namespace LISBOMWebAPI.Controllers
         {
             return Ok("You are ADMIN ✅");
         }
+
+        // =========================
+        // ADMIN USER MANAGEMENT
+        // =========================
+        [Authorize(Roles = "Admin")]
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _context.LISFPAUsers
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.Username,
+                    u.Role,
+                    u.IsActive,
+                    u.CreatedAt,
+                    u.UpdatedAt,
+                    u.LastLoginAt
+                })
+                .ToListAsync();
+            return Ok(users);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("users/{id}/role")]
+        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] RoleUpdateRequest request)
+        {
+            var user = await _context.LISFPAUsers.FindAsync(id);
+            if (user == null) return NotFound("User not found");
+
+            // Only allow "User" or "Admin" roles
+            if (request.Role != "User" && request.Role != "Admin")
+                return BadRequest("Invalid role");
+
+            user.Role = request.Role;
+            user.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            return Ok("User role updated successfully");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("users/{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _context.LISFPAUsers.FindAsync(id);
+            if (user == null) return NotFound("User not found");
+
+            _context.LISFPAUsers.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("User deleted successfully");
+        }
+
+       
+
+
     }
 }

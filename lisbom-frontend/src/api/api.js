@@ -67,3 +67,18 @@ export const deletePartMap = async (mapId) => (await apiClient.delete(`/PartMap/
 // ===== Auth =====
 export const login = async (data) => (await apiClient.post("/Auth/Login", data)).data;
 export const register = async (data) => (await apiClient.post("/Auth/Register", data)).data;
+
+// ===== User Management (Admin) =====
+export const getUsers = async () => {
+    const res = await apiClient.get("/Auth/Users");
+    return ensureArray(res.data);
+};
+
+// roleData should be { role: "User" | "Admin" }
+export const updateUserRole = async (userId, role) => {
+    return (await apiClient.put(`/Auth/Users/${userId}/role`, { role })).data;
+};
+
+export const deleteUser = async (userId) => {
+    return (await apiClient.delete(`/Auth/Users/${userId}`)).data;
+};
