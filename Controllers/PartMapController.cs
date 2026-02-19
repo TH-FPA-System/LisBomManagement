@@ -19,7 +19,11 @@ namespace LISBOMWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PartMap>>> GetPartMaps()
         {
-            return await _context.PartMaps.ToListAsync();
+            return await _context.PartMaps
+                .OrderBy(p => p.Part)
+                .ThenBy(p => p.LisBOMPart)
+                .ThenBy(p => p.StoreLocation)
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]

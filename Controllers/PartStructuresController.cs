@@ -18,7 +18,11 @@ public class PartStructuresController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PartStructure>>> GetPartStructures()
     {
-        return await _context.PartStructures.ToListAsync();
+        return await _context.PartStructures
+            .OrderBy(p => p.Part)
+            .ThenBy(p => p.Task)
+            .ThenBy(p => p.TaskReference)
+            .ToListAsync();
     }
 
     // POST: api/PartStructures

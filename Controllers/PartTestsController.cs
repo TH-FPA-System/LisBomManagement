@@ -17,7 +17,11 @@ public class PartTestsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PartTest>>> GetPartTests()
     {
-        return await _context.PartTests.ToListAsync();
+        return await _context.PartTests
+            .OrderBy(p => p.Part)
+            .ThenBy(p => p.PartIssue)
+            .ThenBy(p => p.TestTag)
+            .ToListAsync();
     }
 
     [HttpGet("{part}/{partIssue}")]

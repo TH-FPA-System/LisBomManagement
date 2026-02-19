@@ -17,7 +17,10 @@ public class PartPropertyDatasController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PartPropertyData>>> GetProperties()
     {
-        return await _context.PartPropertyDatas.ToListAsync();
+        return await _context.PartPropertyDatas
+            .OrderBy(p => p.Part)
+            .ThenBy(p => p.Property)
+            .ToListAsync();
     }
 
     [HttpGet("{part}/{property}")]

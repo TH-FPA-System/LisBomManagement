@@ -18,7 +18,9 @@ public class PartsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Part>>> GetParts()
     {
-        return await _context.Parts.ToListAsync();
+        return await _context.Parts
+                         .OrderBy(p => p.PartCode)                          
+                         .ToListAsync();
     }
 
     // GET: api/Parts/5
