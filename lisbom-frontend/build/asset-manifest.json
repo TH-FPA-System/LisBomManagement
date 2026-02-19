@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/LISBOMManagement/LISBOMManagement/static/css/main.e6c13ad2.css",
-    "main.js": "/LISBOMManagement/LISBOMManagement/static/js/main.e5d5aaeb.js",
+    "main.js": "/LISBOMManagement/LISBOMManagement/static/js/main.5177a0ca.js",
     "static/js/453.88bc8231.chunk.js": "/LISBOMManagement/LISBOMManagement/static/js/453.88bc8231.chunk.js",
     "index.html": "/LISBOMManagement/LISBOMManagement/index.html",
     "main.e6c13ad2.css.map": "/LISBOMManagement/LISBOMManagement/static/css/main.e6c13ad2.css.map",
-    "main.e5d5aaeb.js.map": "/LISBOMManagement/LISBOMManagement/static/js/main.e5d5aaeb.js.map",
+    "main.5177a0ca.js.map": "/LISBOMManagement/LISBOMManagement/static/js/main.5177a0ca.js.map",
     "453.88bc8231.chunk.js.map": "/LISBOMManagement/LISBOMManagement/static/js/453.88bc8231.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.e5d5aaeb.js"
+    "static/js/main.5177a0ca.js"
   ]
 }

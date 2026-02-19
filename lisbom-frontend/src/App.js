@@ -78,11 +78,12 @@ function App() {
         localStorage.removeItem("role");
         localStorage.removeItem("username");
         setIsLoggedIn(false);
-        window.location.href = "/login";
+        window.location.href = "/LISBOMManagement/login";
     };
 
     return (
-        <BrowserRouter>
+        //<BrowserRouter>
+            <BrowserRouter basename="/LISBOMManagement">
             <div style={{ padding: "20px" }}>
                 {isLoggedIn && (
                     <>
